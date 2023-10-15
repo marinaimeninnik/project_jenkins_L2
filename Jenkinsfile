@@ -38,13 +38,7 @@ pipeline {
 
     post {
         failure {
-           script {
-                echo "Build failed. Blocking merge to master branch."
-                sh 'git checkout master'
-                sh 'git merge --abort'
-                sh 'git reset --hard HEAD'
-                sh 'git clean -fd'
-            }
+            echo "Pipeline failed. The master merge possibility would be blocked..."
         }
     }
 }
