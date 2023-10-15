@@ -7,8 +7,6 @@ pipeline {
         GIT_CREDENTIALS = credentials('55bb6d47-49a5-4f07-b4be-300de67195e2')
     }
 
-// [credentialsId: '55bb6d47-49a5-4f07-b4be-300de67195e2', url: 'https://github.com/marinaimeninnik/Docker-L2.git']]
-
     stages {
         stage('Clone Git repo') {
             steps {
@@ -40,8 +38,13 @@ pipeline {
 
     post {
         failure {
-            // Define steps to execute on pipeline failure
-            echo "Pipeline failed. You can add additional actions here."
+           script {
+                echo "Build failed. Blocking merge to master branch."
+                sh 'git checkout master'
+                sh 'git merge --abort'
+                sh 'git reset --hard HEAD'
+                sh 'git clean -fd'
+            }
         }
     }
 }
