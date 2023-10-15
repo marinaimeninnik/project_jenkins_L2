@@ -45,10 +45,10 @@ pipeline {
     post {
         failure {
             echo "Pipeline failed. The master merge possibility would be blocked..."
-            githubStatus context: 'Jenkins', description: 'Build failed', state: 'failure'
+            status context: 'Jenkins', description: 'Build failed', state: 'failure'
         }
         success {
-            githubStatus context: 'Jenkins', description: 'Build passed', state: 'success'
+            status context: 'Jenkins', description: 'Build passed', state: 'success'
         }
     }
     
