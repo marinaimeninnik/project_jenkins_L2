@@ -2,57 +2,54 @@ pipeline {
     agent {
         label 'ubuntu22_04'
     }
+
     stages {
-           stage('Testing stage') {
-               steps {
-                sh "echo 'test'"
-               }
-           }
+        stage('Checkout') {
+            steps {
+                script {
+                    // Checkout the Git repository for the current branch
+                    checkout scm
+                }
+            }
+        }
 
-    //     stage('Checkout') {
-    //         steps {
-    //             // Checkout your source code repository
-    //             checkout scmGit(branches: [[name: '**']],
-    //                 extensions: [],
-    //                 userRemoteConfigs: [[credentialsId: '55bb6d47-49a5-4f07-b4be-300de67195e2',
-    //                 url: 'https://github.com/marinaimeninnik/Docker-L2.git']])
-    //         }
-    //     }
+        stage('Check Commit Message Length') {
+            steps {
+                script {
+                    def currentBranch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStatus: true).trim()
+                    def commitMessage = sh(script: "git log -n 1 --pretty=format:%B", returnStatus: true).trim()
+                    def maxMessageLength = 100  // Set your desired max length
 
-    //     stage('Lint Dockerfile') {
-    //         steps {
-    //             script {
-    //                 // Install hadolint (assuming it's available in the system)
-    //                 sh "apt-get update && apt-get install -y hadolint"
+                    if (commitMessage.length() > maxMessageLength) {
+                        error("Commit message is too long. Max length is $maxMessageLength characters.")
+                    }
+                }
+            }
+        }
 
-    //                 // Specify the path to your Dockerfile
-    //                 def dockerfilePath = 'Dockerfile'
+        stage('Lint Dockerfile') {
+            steps {
+                script {
+                    // Run a Dockerfile linter on your Dockerfile
+                    sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
+                }
+            }
+        }
 
-    //                 // Run hadolint to lint the Dockerfile
-    //                 sh "hadolint ${dockerfilePath}"
-    //             }
-    //         }
-    //     }
+        stage('Save Artifacts') {
+            steps {
+                script {
+                    // Archive the Dockerfile and any other artifacts
+                    archiveArtifacts artifacts: 'Dockerfile', allowEmptyArchive: true
+                }
+            }
+        }
+    }
 
-    //     // Add more stages for building and deploying your Docker image, if needed.
-    // }
-
-    // post {
-    //     always {
-    //         // This block will be executed no matter whether the pipeline succeeds or fails.
-    //         cleanWs()  // Clean up workspace (delete project files and directories)
-    //         // archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true  // Archive artifacts
-    //         deleteDir()  // Delete the entire Jenkins workspace
-    //     }
-
-    //     success {
-    //         // This block will be executed only if the pipeline succeeds.
-    //         echo 'Job was successful.'
-    //     }
-
-    //     failure {
-    //         // This block will be executed only if the pipeline fails.
-    //         echo 'Job failed.'
-        // }
+    post {
+        failure {
+            // Define steps to execute on pipeline failure
+            echo "Pipeline failed. You can add additional actions here."
+        }
     }
 }
