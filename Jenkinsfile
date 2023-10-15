@@ -32,7 +32,7 @@ pipeline {
 
         stage('Save artifact') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                archiveArtifacts artifacts: 'index.php', fingerprint: true
             }
         }
     }
