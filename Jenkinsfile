@@ -51,4 +51,5 @@ pipeline {
                 githubNotify context: context, targetUrl: targetUrl, description: description, repo: repo, status: currentBuild.result.toLowerCase()
             }
         }
+    }
 }
