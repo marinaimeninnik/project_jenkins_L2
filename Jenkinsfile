@@ -42,34 +42,14 @@ pipeline {
     }
 
 
-   post {
-        success {
-            script {
-                def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                def gitUrl = 'https://github.com/marinaimeninnik/project_jenkins_L2.git'
-                def github = github()
-                github.setCommitStatus(
-                    context: 'Jenkins',
-                    state: 'SUCCESS',
-                    sha1: gitCommit,
-                    targetUrl: env.BUILD_URL,
-                    description: 'Build successful'
-                )
-            }
-        }
+    post {
         failure {
-            script {
-                def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                def gitUrl = 'https://github.com/marinaimeninnik/project_jenkins_L2.git'
-                def github = github()
-                github.setCommitStatus(
-                    context: 'Jenkins',
-                    state: 'FAILURE',
-                    sha1: gitCommit,
-                    targetUrl: env.BUILD_URL,
-                    description: 'Build failed'
-                )
-            }
+            echo "Pipeline failed. The master merge possibility would be blocked..."
+            githubStatus context: 'Jenkins', description: 'Build failed', state: 'failure'
+        }
+        success {
+            githubStatus context: 'Jenkins', description: 'Build passed', state: 'success'
         }
     }
+    
 }
