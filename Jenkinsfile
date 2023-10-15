@@ -1,5 +1,5 @@
 pipeline {
-    node {
+    agent {
         label 'ubuntu22_04'
     }
     stages {
