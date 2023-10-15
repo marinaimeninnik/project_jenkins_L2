@@ -8,6 +8,12 @@ pipeline {
     }
 
     stages {
+        stage('Clean workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
         stage('Clone Git repo') {
             steps {
                 withCredentials([usernamePassword(credentialsId: '55bb6d47-49a5-4f07-b4be-300de67195e2', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
