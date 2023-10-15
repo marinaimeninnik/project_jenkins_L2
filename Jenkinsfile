@@ -1,55 +1,29 @@
 pipeline {
-    agent {
-        label 'ubuntu22_04'
-    }
+    agent any
 
     stages {
-        stage('Checkout') {
+        stage('Clone Git repo') {
             steps {
-                script {
-                    // Checkout the Git repository for the current branch
-                    checkout scm
-                }
+                git branch: env.BRANCH_NAME, url: 'https://github.com/marinaimeninnik/project_jenkins_L2.git'
             }
         }
 
-        stage('Check Commit Message Length') {
+        stage('Check commit message length') {
             steps {
-                script {
-                    def currentBranch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStatus: true).trim()
-                    def commitMessage = sh(script: "git log -n 1 --pretty=format:%B", returnStatus: true).trim()
-                    def maxMessageLength = 100  // Set your desired max length
-
-                    if (commitMessage.length() > maxMessageLength) {
-                        error("Commit message is too long. Max length is $maxMessageLength characters.")
-                    }
-                }
+                sh 'COMMIT_MSG=$(git log -1 --pretty=%B); if [ ${#COMMIT_MSG} -gt 50 ]; then echo "Commit message too long"; exit 1; fi'
             }
         }
 
         stage('Lint Dockerfile') {
             steps {
-                script {
-                    // Run a Dockerfile linter on your Dockerfile
-                    sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
-                }
+                sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
             }
         }
 
-        stage('Save Artifacts') {
+        stage('Save artifact') {
             steps {
-                script {
-                    // Archive the Dockerfile and any other artifacts
-                    archiveArtifacts artifacts: 'Dockerfile', allowEmptyArchive: true
-                }
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
-        }
-    }
-
-    post {
-        failure {
-            // Define steps to execute on pipeline failure
-            echo "Pipeline failed. You can add additional actions here."
         }
     }
 }
