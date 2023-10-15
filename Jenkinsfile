@@ -1,10 +1,20 @@
 pipeline {
-    agent any
+    agent {
+        label 'ubuntu22_04'
+    }
+
+    environment {
+        GIT_CREDENTIALS = credentials('55bb6d47-49a5-4f07-b4be-300de67195e2')
+    }
+
+// [credentialsId: '55bb6d47-49a5-4f07-b4be-300de67195e2', url: 'https://github.com/marinaimeninnik/Docker-L2.git']]
 
     stages {
         stage('Clone Git repo') {
             steps {
-                git branch: env.BRANCH_NAME, url: 'https://github.com/marinaimeninnik/project_jenkins_L2.git'
+                withCredentials([usernamePassword(credentialsId: '55bb6d47-49a5-4f07-b4be-300de67195e2', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    git branch: env.BRANCH_NAME, credentialsId: '55bb6d47-49a5-4f07-b4be-300de67195e2', url: 'https://github.com/marinaimeninnik/Docker-L2.git'
+                }
             }
         }
 
@@ -24,6 +34,14 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
+        }
+    }
+}
+
+    post {
+        failure {
+            // Define steps to execute on pipeline failure
+            echo "Pipeline failed. You can add additional actions here."
         }
     }
 }
