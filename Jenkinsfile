@@ -37,18 +37,32 @@ pipeline {
 
 
    post {
-        failure {
-            echo "Pipeline failed. The master merge possibility would be blocked..."
-            currentBuild.result = 'FAILURE' // Mark the build as failed
-        }
-        always {
+        success {
             script {
-                // Send a GitHub status check
-                def repo = 'marinaimeninnik/Docker-L2' // Update with your repository
-                def context = 'Jenkins'
-                def targetUrl = "${BUILD_URL}console" // Link to the Jenkins console
-                def description = currentBuild.resultIsBetterOrEqualTo('SUCCESS') ? 'Build passed' : 'Build failed'
-                githubNotify context: context, targetUrl: targetUrl, description: description, repo: repo, status: currentBuild.result.toLowerCase()
+                def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                def gitUrl = 'https://github.com/your/repo.git'
+                def github = github()
+                github.setCommitStatus(
+                    context: 'Jenkins',
+                    state: 'SUCCESS',
+                    sha1: gitCommit,
+                    targetUrl: env.BUILD_URL,
+                    description: 'Build successful'
+                )
+            }
+        }
+        failure {
+            script {
+                def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                def gitUrl = 'https://github.com/your/repo.git'
+                def github = github()
+                github.setCommitStatus(
+                    context: 'Jenkins',
+                    state: 'FAILURE',
+                    sha1: gitCommit,
+                    targetUrl: env.BUILD_URL,
+                    description: 'Build failed'
+                )
             }
         }
     }
