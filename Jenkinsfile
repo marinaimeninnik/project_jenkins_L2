@@ -40,7 +40,7 @@ pipeline {
         success {
             script {
                 def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                def gitUrl = 'https://github.com/your/repo.git'
+                def gitUrl = 'https://github.com/marinaimeninnik/Docker-L2.git'
                 def github = github()
                 github.setCommitStatus(
                     context: 'Jenkins',
@@ -54,7 +54,7 @@ pipeline {
         failure {
             script {
                 def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                def gitUrl = 'https://github.com/your/repo.git'
+                def gitUrl = 'https://github.com/marinaimeninnik/Docker-L2.git'
                 def github = github()
                 github.setCommitStatus(
                     context: 'Jenkins',
