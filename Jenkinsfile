@@ -26,7 +26,7 @@ pipeline {
 
         stage('Lint Dockerfile') {
             steps {
-                sh 'docker run --rm -i hadolint/hadolint < Docker/Dockerfile'
+                sh 'sudo docker run --rm -i hadolint/hadolint < Docker/Dockerfile'
             }
         }
 
