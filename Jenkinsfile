@@ -43,13 +43,14 @@ pipeline {
 
 
     post {
-        failure {
-            echo "Pipeline failed. The master merge possibility would be blocked..."
-        //     status context: 'Jenkins', description: 'Build failed', state: 'failure'
-        // }
-        // success {
-        //     status context: 'Jenkins', description: 'Build passed', state: 'success'
+       script {
+                currentBuild.result = 'FAILURE'
+                def pr = currentBuild.rawBuild.getAction(hudson.plugins.git.util.BuildData).lastBuild.revision.pull
+                if (pr != null) {
+                    def gh = org.jenkinsci.plugins.github.GitHubPRStatus.createGitHub(client: currentBuild.rawBuild.builtOn, repo: pr.head.repo, sha: pr.head.sha)
+                    gh.createStatus(state: 'FAILURE', targetUrl: env.BUILD_URL, description: 'Jenkins CI', context: 'continuous-integration/jenkins')
+                }
         }
     }
-    
+
 }
