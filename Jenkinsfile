@@ -42,36 +42,65 @@ pipeline {
     }
 
 
-   post {
+//    post {
+//         failure {
+//             script {
+//                 def pr = currentBuild.rawBuild.getAction(hudson.plugins.git.util.BuildData).lastBuild.revision.pull
+//                 if (pr != null) {
+//                     def gh = org.jenkinsci.plugins.github.GitHubPRStatus.createGitHub(client: currentBuild.rawBuild.builtOn, repo: pr.head.repo, sha: pr.head.sha)
+//                     gh.createStatus(state: 'FAILURE', targetUrl: env.BUILD_URL, description: 'Jenkins CI', context: 'continuous-integration/jenkins')
+//                 }
+//                 currentBuild.result = 'FAILURE'
+//             }
+//         }
+//         success {
+//             script {
+//                 currentBuild.result = 'SUCCESS'
+//             }
+//         }
+//         //     //    publishChecks(name: 'Status Reporter', status: 'FAILURE', summary: 'Buld failed')
+//         // }
+//         // failure {
+//         //     script {
+//         //         currentBuild.result = 'FAILURE'
+//         //     }
+//         // }
+//         // always
+//         //     script {
+//         //         if (currentBuild.resultIsBetterOrEqualTo('FAILURE')) {
+//         //             echo 'Merge to main had been blocked'
+//         //         }
+//         //     }
+
+//     }
+     post {
         failure {
             script {
-                def pr = currentBuild.rawBuild.getAction(hudson.plugins.git.util.BuildData).lastBuild.revision.pull
-                if (pr != null) {
-                    def gh = org.jenkinsci.plugins.github.GitHubPRStatus.createGitHub(client: currentBuild.rawBuild.builtOn, repo: pr.head.repo, sha: pr.head.sha)
-                    gh.createStatus(state: 'FAILURE', targetUrl: env.BUILD_URL, description: 'Jenkins CI', context: 'continuous-integration/jenkins')
-                }
+                // Set GitHub commit status
+                def githubCommitStatus = [
+                    context: 'Jenkins CI',
+                    state: 'FAILURE',
+                    description: 'Jenkins CI failed',
+                    targetUrl: env.BUILD_URL,
+                ]
+                ghprbSetCommitStatus githubCommitStatus
+
+                // Mark the build as failed
                 currentBuild.result = 'FAILURE'
             }
         }
         success {
             script {
-                currentBuild.result = 'SUCCESS'
+                // Set GitHub commit status for a successful build
+                def githubCommitStatus = [
+                    context: 'Jenkins CI',
+                    state: 'SUCCESS',
+                    description: 'Jenkins CI succeeded',
+                    targetUrl: env.BUILD_URL,
+                ]
+                ghprbSetCommitStatus githubCommitStatus
             }
         }
-        //     //    publishChecks(name: 'Status Reporter', status: 'FAILURE', summary: 'Buld failed')
-        // }
-        // failure {
-        //     script {
-        //         currentBuild.result = 'FAILURE'
-        //     }
-        // }
-        // always
-        //     script {
-        //         if (currentBuild.resultIsBetterOrEqualTo('FAILURE')) {
-        //             echo 'Merge to main had been blocked'
-        //         }
-        //     }
-
     }
-
 }
+
