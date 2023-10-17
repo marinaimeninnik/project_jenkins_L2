@@ -50,8 +50,8 @@ pipeline {
                     def gh = org.jenkinsci.plugins.github.GitHubPRStatus.createGitHub(client: currentBuild.rawBuild.builtOn, repo: pr.head.repo, sha: pr.head.sha)
                     gh.createStatus(state: 'FAILURE', targetUrl: env.BUILD_URL, description: 'Jenkins CI', context: 'continuous-integration/jenkins')
                 }
+                currentBuild.result = 'FAILURE'
             }
-            currentBuild.result = 'FAILURE'
         }
         success {
             script {
