@@ -43,16 +43,27 @@ pipeline {
 
 
    post {
+        // failure {
+        //     script {
+        //         def pr = currentBuild.rawBuild.getAction(hudson.plugins.git.util.BuildData).lastBuild.revision.pull
+        //         if (pr != null) {
+        //             def gh = org.jenkinsci.plugins.github.GitHubPRStatus.createGitHub(client: currentBuild.rawBuild.builtOn, repo: pr.head.repo, sha: pr.head.sha)
+        //             gh.createStatus(state: 'FAILURE', targetUrl: env.BUILD_URL, description: 'Jenkins CI', context: 'continuous-integration/jenkins')
+        //         }
+        //     }
+        //     //    publishChecks(name: 'Status Reporter', status: 'FAILURE', summary: 'Buld failed')
+        // }
         failure {
             script {
-                def pr = currentBuild.rawBuild.getAction(hudson.plugins.git.util.BuildData).lastBuild.revision.pull
-                if (pr != null) {
-                    def gh = org.jenkinsci.plugins.github.GitHubPRStatus.createGitHub(client: currentBuild.rawBuild.builtOn, repo: pr.head.repo, sha: pr.head.sha)
-                    gh.createStatus(state: 'FAILURE', targetUrl: env.BUILD_URL, description: 'Jenkins CI', context: 'continuous-integration/jenkins')
+                currentBuild.result = 'FAILURE'
+            }
+        }
+        always
+            script {
+                if (currentBuild.resultIsBetterOrEqualTo('FAILURE')) {
+                    echo 'Merge to main had been blocked'
                 }
             }
-            //    publishChecks(name: 'Status Reporter', status: 'FAILURE', summary: 'Buld failed')
-        }
 
     }
 
