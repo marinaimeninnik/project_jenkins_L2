@@ -107,7 +107,7 @@ pipeline {
         success {
             script {
                 def commitSha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-                sh (echo '\$commitSha')
+                sh "echo $commitSha"
                 withCredentials([usernamePassword(credentialsId: '5f407016-3f8c-4868-8f54-e2e660c91a3c', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                     sh """
                     curl -L -X POST -H "Accept: application/vnd.github+json" \
