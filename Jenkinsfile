@@ -29,15 +29,6 @@ pipeline {
             }
         }
 
-        stage('Test Token') {
-            steps {
-                script {
-                    def gitCredentials = credentials('5f407016-3f8c-4868-8f54-e2e660c91a3c')
-                    echo "Git Credentials: ${gitCredentials}"
-                }
-            }
-        }
-
         stage('Lint Dockerfile') {
             steps {
                 sh 'sudo docker run --rm -i hadolint/hadolint < Docker/Dockerfile'
@@ -87,15 +78,14 @@ pipeline {
             script {
                 def commitSha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
-                // Create a commit status indicating failure
-                sh("""
-                    curl -L -X POST \\
-                    -H "Accept: application/vnd.github+json" \\
-                    -H "Authorization: Bearer ${GITHUB_TOKEN}" \\
-                    -H "X-GitHub-Api-Version: 2022-11-28" \\
-                    https://api.github.com/repos/marinaimeninnik/project_jenkins_L2/statuses/${commitSha} \\
+                withCredentials([string(credentialsId: '5f407016-3f8c-4868-8f54-e2e660c91a3c', variable: 'GIT_TOKEN')]) {
+                    sh """
+                    curl -L -X POST -H "Accept: application/vnd.github+json" \
+                    -H "Authorization: Bearer \$GIT_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+                    https://api.github.com/repos/marinaimeninnik/project_jenkins_L2/statuses/cf430c04307b4773ffafa795efcd33fe2111f9ea \
                     -d '{"state":"failure","target_url":"https://your-pipeline-failure-url","description":"Pipeline failed","context":"ci/jenkins"}'
-                """)
+                    """
+                }
             }
         }
     }
