@@ -29,6 +29,15 @@ pipeline {
             }
         }
 
+        stage('Test Token') {
+            steps {
+                script {
+                    def gitCredentials = credentials('5f407016-3f8c-4868-8f54-e2e660c91a3c')
+                    echo "Git Credentials: ${gitCredentials}"
+                }
+            }
+        }
+
         stage('Lint Dockerfile') {
             steps {
                 sh 'sudo docker run --rm -i hadolint/hadolint < Docker/Dockerfile'
@@ -38,15 +47,6 @@ pipeline {
         stage('Save artifact') {
             steps {
                 archiveArtifacts artifacts: 'index.php', fingerprint: true
-            }
-        }
-
-        stage('Test Token') {
-            steps {
-                script {
-                    def gitCredentials = credentials('5f407016-3f8c-4868-8f54-e2e660c91a3c')
-                    echo "Git Credentials: ${gitCredentials}"
-                }
             }
         }
     }
