@@ -5,6 +5,7 @@ pipeline {
 
     environment {
         GIT_CREDENTIALS = credentials('5f407016-3f8c-4868-8f54-e2e660c91a3c')
+        GITHUB_TOKEN = sh(script: 'echo $GIT_CREDENTIALS', returnStdout: true).trim()
     }
 
     stages {
@@ -74,11 +75,20 @@ pipeline {
 
 //     }
     post {
-      always {
-        publishChecks name: 'example', title: 'Pipeline Check', summary: 'check through pipeline',
-        text: 'you can publish checks in pipeline script',
-        detailsURL: 'https://github.com/jenkinsci/checks-api-plugin#pipeline-usage',
-        actions: [[label:'an-user-request-action', description:'actions allow users to request pre-defined behaviours', identifier:'an unique identifier']]
+       failure {
+            script {
+                def commitSha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
+                // Create a commit status indicating failure
+                sh("""
+                    curl -L -X POST \\
+                    -H "Accept: application/vnd.github+json" \\
+                    -H "Authorization: Bearer ${GITHUB_TOKEN}" \\
+                    -H "X-GitHub-Api-Version: 2022-11-28" \\
+                    https://api.github.com/repos/OWNER/REPO/statuses/${commitSha} \\
+                    -d '{"state":"failure","target_url":"https://your-pipeline-failure-url","description":"Pipeline failed","context":"ci/jenkins"}'
+                """)
+            }
         }
     }
 }
