@@ -85,7 +85,7 @@ pipeline {
                     -H "Accept: application/vnd.github+json" \\
                     -H "Authorization: Bearer ${GITHUB_TOKEN}" \\
                     -H "X-GitHub-Api-Version: 2022-11-28" \\
-                    https://api.github.com/repos/OWNER/REPO/statuses/${commitSha} \\
+                    https://api.github.com/repos/marinaimeninnik/project_jenkins_L2/statuses/${commitSha} \\
                     -d '{"state":"failure","target_url":"https://your-pipeline-failure-url","description":"Pipeline failed","context":"ci/jenkins"}'
                 """)
             }
