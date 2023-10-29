@@ -73,33 +73,12 @@ pipeline {
 //         //     }
 
 //     }
-     post {
-        failure {
-            script {
-                // Set GitHub commit status
-                def githubCommitStatus = [
-                    context: 'Jenkins CI',
-                    state: 'FAILURE',
-                    description: 'Jenkins CI failed',
-                    targetUrl: env.BUILD_URL,
-                ]
-                ghprbSetCommitStatus githubCommitStatus
-
-                // Mark the build as failed
-                currentBuild.result = 'FAILURE'
-            }
-        }
-        success {
-            script {
-                // Set GitHub commit status for a successful build
-                def githubCommitStatus = [
-                    context: 'Jenkins CI',
-                    state: 'SUCCESS',
-                    description: 'Jenkins CI succeeded',
-                    targetUrl: env.BUILD_URL,
-                ]
-                ghprbSetCommitStatus githubCommitStatus
-            }
+    post {
+      failure {
+        publishChecks name: 'example', title: 'Pipeline Check', summary: 'check through pipeline',
+        text: 'you can publish checks in pipeline script',
+        detailsURL: 'https://github.com/jenkinsci/checks-api-plugin#pipeline-usage',
+        actions: [[label:'an-user-request-action', description:'actions allow users to request pre-defined behaviours', identifier:'an unique identifier']]
         }
     }
 }
