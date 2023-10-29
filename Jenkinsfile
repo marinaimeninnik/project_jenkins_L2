@@ -74,7 +74,7 @@ pipeline {
 
 //     }
     post {
-       failure {
+        failure {
             script {
                 def commitSha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
@@ -82,8 +82,22 @@ pipeline {
                     sh """
                     curl -L -X POST -H "Accept: application/vnd.github+json" \
                     -H "Authorization: Bearer \$GIT_PASSWORD" -H "X-GitHub-Api-Version: 2022-11-28" \
-                    https://api.github.com/repos/marinaimeninnik/project_jenkins_L2/statuses/cf430c04307b4773ffafa795efcd33fe2111f9ea \
+                    https://api.github.com/repos/marinaimeninnik/project_jenkins_L2/statuses/\$commitSha \
                     -d '{"state":"failure","target_url":"https://your-pipeline-failure-url","description":"Pipeline failed","context":"ci/jenkins"}'
+                    """
+                }
+            }
+        }
+        success {
+            script {
+                def commitSha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
+                withCredentials([usernamePassword(credentialsId: '5f407016-3f8c-4868-8f54-e2e660c91a3c', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                    sh """
+                    curl -L -X POST -H "Accept: application/vnd.github+json" \
+                    -H "Authorization: Bearer \$GIT_PASSWORD" -H "X-GitHub-Api-Version: 2022-11-28" \
+                    https://api.github.com/repos/marinaimeninnik/project_jenkins_L2/statuses/\$commitSha \
+                    -d '{"state":"success","target_url":"https://your-pipeline-success-url","description":"Pipeline succeeded","context":"ci/jenkins"}'
                     """
                 }
             }
